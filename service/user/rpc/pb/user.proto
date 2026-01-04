@@ -5,9 +5,11 @@ option go_package = ".";
 
 message UserInfo {
 uint64 id = 1;
-string username = 2;
-string email = 3;
-map<string, string> extra_info = 4; //这里对应我们在数据库的json字段
+uint32 score=2;
+string username = 3;
+string password = 4;
+string email = 5;
+map<string, string> extra_info = 6; //这里对应我们在数据库的json字段
 }
 
 message GetUserReq {

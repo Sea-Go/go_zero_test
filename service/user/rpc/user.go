@@ -5,11 +5,13 @@ import (
 	"fmt"
 
 	"user/rpc/internal/config"
+	"user/rpc/internal/model/postgres"
 	"user/rpc/internal/server"
 	"user/rpc/internal/svc"
 	"user/rpc/pb"
 
 	"github.com/zeromicro/go-zero/core/conf"
+	"github.com/zeromicro/go-zero/core/logx"
 	"github.com/zeromicro/go-zero/core/service"
 	"github.com/zeromicro/go-zero/zrpc"
 	"google.golang.org/grpc"
@@ -32,6 +34,11 @@ func main() {
 			reflection.Register(grpcServer)
 		}
 	})
+	err:=postgres.InitDB(c)
+	if err!=nil{
+		logx.Error(err)
+	}
+	logx.Info("init db success")
 	defer s.Stop()
 
 	fmt.Printf("Starting rpc server at %s...\n", c.ListenOn)
