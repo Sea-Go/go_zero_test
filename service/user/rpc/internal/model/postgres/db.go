@@ -5,14 +5,28 @@ import (
 	"time"
 	"user/rpc/internal/config"
 
+	"github.com/zeromicro/go-zero/core/logx"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/schema"
 )
 
-var DB *gorm.DB // 建议首字母大写以便外部访问
+type UserRepo struct{
+	Db *gorm.DB
+}
 
-func InitDB(c config.Config) (err error) {
+func NewUserRepo(c config.Config) *UserRepo {
+	db,err:=InitDB(c)
+	if err!=nil{
+		logx.Errorf("init db error:%v",err)
+		panic(err)
+	}
+	return &UserRepo{
+		Db: db,
+	}
+}
+
+func InitDB(c config.Config) (db *gorm.DB,err error) {
 	dsn := fmt.Sprintf(
 		"host=%s port=%s user=%s password=%s dbname=%s sslmode=disable TimeZone=Asia/Shanghai",
 		c.Postgres.Host,
@@ -21,8 +35,7 @@ func InitDB(c config.Config) (err error) {
 		c.Postgres.Password,
 		c.Postgres.Dbname,
 	)
-
-	DB, err = gorm.Open(postgres.Open(dsn), &gorm.Config{
+	db, err = gorm.Open(postgres.Open(dsn), &gorm.Config{
 		SkipDefaultTransaction:                   true,
 		DisableForeignKeyConstraintWhenMigrating: true,
 		NamingStrategy: schema.NamingStrategy{
@@ -31,21 +44,21 @@ func InitDB(c config.Config) (err error) {
 	})
 
 	if err != nil {
-		return fmt.Errorf("failed to connect to postgres: %w", err)
+		return nil, fmt.Errorf("failed to connect to postgres: %w", err)
 	}
 
 	// 获取底层 *sql.DB 以设置连接池
-	sqlDB, err := DB.DB()
+	sqlDB, err := db.DB()
 	if err != nil {
-		return fmt.Errorf("failed to get sql.DB: %w", err)
+		return nil,fmt.Errorf("failed to get sql.DB: %w", err)
 	}
 
 	// 自动迁移模型
-	err= DB.AutoMigrate(
+	err= db.AutoMigrate(
 		&User{},
 	)
 	if err != nil {
-		return fmt.Errorf("failed to auto migrate models: %w", err)
+		return nil,fmt.Errorf("failed to auto migrate models: %w", err)
 	}
 
 	// 设置连接池
@@ -53,5 +66,5 @@ func InitDB(c config.Config) (err error) {
 	sqlDB.SetMaxIdleConns(10)
 	sqlDB.SetConnMaxLifetime(10 * time.Second)
 
-	return nil
+	return db, nil
 }

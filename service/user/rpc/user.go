@@ -25,7 +25,8 @@ func main() {
 
 	var c config.Config
 	conf.MustLoad(*configFile, &c)
-	ctx := svc.NewServiceContext(c)
+	u:=postgres.NewUserRepo(c)
+	ctx := svc.NewServiceContext(c, u)
 
 	s := zrpc.MustNewServer(c.RpcServerConf, func(grpcServer *grpc.Server) {
 		__.RegisterUserServiceServer(grpcServer, server.NewUserServiceServer(ctx))
@@ -34,11 +35,6 @@ func main() {
 			reflection.Register(grpcServer)
 		}
 	})
-	err:=postgres.InitDB(c)
-	if err!=nil{
-		logx.Error(err)
-	}
-	logx.Info("init db success")
 	defer s.Stop()
 
 	fmt.Printf("Starting rpc server at %s...\n", c.ListenOn)
