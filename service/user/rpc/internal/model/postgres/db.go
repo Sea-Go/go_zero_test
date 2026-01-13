@@ -21,6 +21,7 @@ func NewUserRepo(c config.Config) *UserRepo {
 		logx.Errorf("init db error:%v",err)
 		panic(err)
 	}
+	logx.Infof("init db success")
 	return &UserRepo{
 		Db: db,
 	}
