@@ -3,6 +3,7 @@ module user
 go 1.25.5
 
 require (
+	common v0.0.0
 	github.com/zeromicro/go-zero v1.9.4
 	google.golang.org/grpc v1.65.0
 	google.golang.org/protobuf v1.36.5
@@ -10,8 +11,11 @@ require (
 	gorm.io/gorm v1.31.1
 )
 
+replace common v0.0.0 => ../common
+
 require (
 	github.com/beorn7/perks v1.0.1 // indirect
+	github.com/bwmarrin/snowflake v0.3.0 // indirect
 	github.com/cenkalti/backoff/v4 v4.3.0 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/coreos/go-semver v0.3.1 // indirect

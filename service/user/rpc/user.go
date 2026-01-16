@@ -1,6 +1,7 @@
 package main
 
 import (
+	snowflake "common/utils"
 	"flag"
 	"fmt"
 
@@ -25,6 +26,12 @@ func main() {
 	conf.MustLoad(*configFile, &c)
 	u:=postgres.NewUserRepo(c)
 	ctx := svc.NewServiceContext(c, u)
+
+	id,err:= snowflake.GetID()
+	if err != nil {
+		fmt.Println(err)
+	}
+	fmt.Println(id)
 
 	s := zrpc.MustNewServer(c.RpcServerConf, func(grpcServer *grpc.Server) {
 		__.RegisterUserServiceServer(grpcServer, server.NewUserServiceServer(ctx))
